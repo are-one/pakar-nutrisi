@@ -8,10 +8,10 @@ use yii\base\Model;
 /**
  * LoginForm is the model behind the login form.
  *
- * @property-read User|null $user
+ * @property-read User|null $user This property is read-only.
  *
  */
-class LoginForm extends Model
+class Validasi extends Model
 {
     public $username;
     public $password;
@@ -27,7 +27,7 @@ class LoginForm extends Model
     {
         return [
             // username and password are both required
-            [['username', 'password'], 'required'],
+            [['username', 'password'], 'required', 'message' => '{attribute} wajib diisi.'],
             // rememberMe must be a boolean value
             ['rememberMe', 'boolean'],
             // password is validated by validatePassword()
@@ -48,7 +48,7 @@ class LoginForm extends Model
             $user = $this->getUser();
 
             if (!$user || !$user->validatePassword($this->password)) {
-                $this->addError($attribute, 'Incorrect username or password.');
+                $this->addError($attribute, 'Username atau password salah.');
             }
         }
     }
@@ -60,7 +60,13 @@ class LoginForm extends Model
     public function login()
     {
         if ($this->validate()) {
-            return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600*24*30 : 0);
+
+            if ($this->getUser()->formName() == 'AhliGizi') {
+
+                return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600 * 24 * 30 : 0);
+            } else {
+                return Yii::$app->pasien->login($this->getUser(), $this->rememberMe ? 3600 * 24 * 30 : 0);
+            }
         }
         return false;
     }
@@ -73,7 +79,11 @@ class LoginForm extends Model
     public function getUser()
     {
         if ($this->_user === false) {
-            $this->_user = User::findByUsername($this->username);
+            // $this->_user = User::findByUsername($this->username);
+            $this->_user = Pasien::findByUsername($this->username);
+            if ($this->_user === null) {
+                $this->_user = AhliGizi::findByUsername($this->username);
+            }
         }
 
         return $this->_user;
