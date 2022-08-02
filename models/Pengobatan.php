@@ -10,7 +10,8 @@ use Yii;
  * @property string $id_pengobatan
  * @property string $pengobatan
  *
- * @property Diagnosis[] $diagnoses
+ * @property PenyakitHasPengobatan[] $penyakitHasPengobatans
+ * @property Penyakit[] $penyakits
  */
 class Pengobatan extends \yii\db\ActiveRecord
 {
@@ -47,12 +48,22 @@ class Pengobatan extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Diagnoses]].
+     * Gets query for [[PenyakitHasPengobatans]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getDiagnoses()
+    public function getPenyakitHasPengobatans()
     {
-        return $this->hasMany(Diagnosis::className(), ['pengobatan_id_pengobatan' => 'id_pengobatan']);
+        return $this->hasMany(PenyakitHasPengobatan::className(), ['pengobatan_id' => 'id_pengobatan']);
+    }
+
+    /**
+     * Gets query for [[Penyakits]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPenyakits()
+    {
+        return $this->hasMany(Penyakit::className(), ['id_penyakit' => 'penyakit_id'])->viaTable('penyakit_has_pengobatan', ['pengobatan_id' => 'id_pengobatan']);
     }
 }
