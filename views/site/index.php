@@ -1,53 +1,53 @@
 <?php
 
-/** @var yii\web\View $this */
+/* @var $this yii\web\View */
 
-$this->title = 'My Yii Application';
+$this->title = 'Pakar - Nutrisi Ibu Hamil';
 ?>
-<div class="site-index">
+<section id="hero">
+    <div id="heroCarousel" class="carousel slide carousel-fade" data-ride="carousel">
 
-    <div class="jumbotron text-center bg-transparent">
-        <h1 class="display-4">Congratulations!</h1>
+        <ol class="carousel-indicators" id="hero-carousel-indicators"></ol>
 
-        <p class="lead">You have successfully created your Yii-powered application.</p>
+        <div class="carousel-inner" role="listbox">
 
-        <p><a class="btn btn-lg btn-success" href="http://www.yiiframework.com">Get started with Yii</a></p>
-    </div>
-
-    <div class="body-content">
-
-        <div class="row">
-            <div class="col-lg-4">
-                <h2>Heading</h2>
-
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
-
-                <p><a class="btn btn-outline-secondary" href="http://www.yiiframework.com/doc/">Yii Documentation &raquo;</a></p>
+            <!-- Slide 1 -->
+            <div class="carousel-item active" style="background-image: url(assets2/img/slide/nutritions.jpg)">
+                <div class="container">
+                    <h2>Selamat Datang di <span>Sistem Pakar Kebutuhan Nutrisi Ibu Hamil</span></h2>
+                    <p>Anda dapat melakukan diagnosa konsultasi kebutuhan nutrisi ibu hamil "Dimana Saja & Kapan Saja"
+                    </p>
+                </div>
             </div>
-            <div class="col-lg-4">
-                <h2>Heading</h2>
 
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
+            <!-- Slide 2 -->
+            <div class="carousel-item" style="background-image: url(assets2/img/slide/nutritions2.jpg)">
+                <div class="container">
+                    <h2>Selamat Datang di <span>Sistem Pakar Kebutuhan Nutrisi Ibu Hamil</span></h2>
+                    <p>Anda dapat melakukan diagnosa konsultasi kebutuhan nutrisi ibu hamil "Dimana Saja & Kapan Saja"
 
-                <p><a class="btn btn-outline-secondary" href="http://www.yiiframework.com/forum/">Yii Forum &raquo;</a></p>
+                </div>
             </div>
-            <div class="col-lg-4">
-                <h2>Heading</h2>
 
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
-
-                <p><a class="btn btn-outline-secondary" href="http://www.yiiframework.com/extensions/">Yii Extensions &raquo;</a></p>
+            <!-- Slide 3 -->
+            <div class="carousel-item" style="background-image: url(assets2/img/slide/nutritions3.jpg)">
+                <div class="container">
+                    <h2>Selamat Datang di <span>Sistem Pakar Kebutuhan Nutrisi Ibu Hamil</span></h2>
+                    <p>Anda dapat melakukan diagnosa konsultasi kebutuhan nutrisi ibu hamil "Dimana Saja & Kapan Saja"
+                </div>
             </div>
+
         </div>
 
+        <a class="carousel-control-prev" href="#heroCarousel" role="button" data-slide="prev">
+            <span class="carousel-control-prev-icon icofont-simple-left" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+        </a>
+
+        <a class="carousel-control-next" href="#heroCarousel" role="button" data-slide="next">
+            <span class="carousel-control-next-icon icofont-simple-right" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+        </a>
+
     </div>
-</div>
+</section>

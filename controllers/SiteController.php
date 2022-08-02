@@ -2,13 +2,20 @@
 
 namespace app\controllers;
 
+use app\models\AturanGejala;
+use app\models\Diagnosis;
+use app\models\DiagnosisGejala;
+use app\models\Gejala;
+use app\models\Pasien;
+use app\models\Penyakit;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
-use app\models\LoginForm;
-use app\models\ContactForm;
+use app\models\Validasi;
+use Exception;
+use yii\helpers\ArrayHelper;
 
 class SiteController extends Controller
 {
@@ -75,7 +82,7 @@ class SiteController extends Controller
             return $this->goHome();
         }
 
-        $model = new LoginForm();
+        $model = new Validasi();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
             return $this->goBack();
         }
@@ -91,29 +98,13 @@ class SiteController extends Controller
      *
      * @return Response
      */
+
+
     public function actionLogout()
     {
-        Yii::$app->user->logout();
+        Yii::$app->pasien->logout();
 
         return $this->goHome();
-    }
-
-    /**
-     * Displays contact page.
-     *
-     * @return Response|string
-     */
-    public function actionContact()
-    {
-        $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
-            Yii::$app->session->setFlash('contactFormSubmitted');
-
-            return $this->refresh();
-        }
-        return $this->render('contact', [
-            'model' => $model,
-        ]);
     }
 
     /**
@@ -125,4 +116,49 @@ class SiteController extends Controller
     {
         return $this->render('about');
     }
+
+    public function actionInformasi()
+    {
+        return $this->render('informasi');
+    }
+
+
+
+    // public function actionDaftar()
+    // {
+    //     $model = new Pasien();
+    //     $tgl_lama = "";
+
+    //     if (Yii::$app->request->isPost) {
+    //         $dataPost = Yii::$app->request->post();
+
+
+    //         $model->load($dataPost);
+
+    //         if ($model->validate()) {
+    //             // Set tgl lahir
+    //             $tgl_lama = $model->tgl_lahir;
+    //             $tgl_lahir = strtotime($model->tgl_lahir);
+    //             $model->tgl_lahir = date('Y-m-d', $tgl_lahir);
+
+
+    //             // Set Password
+    //             $model->setPassword($model->password);
+
+    //             if ($model->save(false)) {
+    //                 return $this->redirect(['login']);
+    //             }
+    //             // print_r($model);
+    //             // die;
+    //         }
+    //     } else {
+    //         $model->tgl_lahir = $tgl_lama;
+    //     }
+    //     return $this->render('daftar', ['model' => $model]);
+    // }
+
+    // =====================================================================================
+    // DIAGNOSA PENYAKIT
+    // =====================================================================================
+
 }

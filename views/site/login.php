@@ -1,49 +1,129 @@
 <?php
 
-/** @var yii\web\View $this */
-/** @var yii\bootstrap4\ActiveForm $form */
-/** @var app\models\LoginForm $model */
+/* @var $this yii\web\View */
+/* @var $form yii\bootstrap\ActiveForm */
+/* @var $model app\models\LoginForm */
 
-use yii\bootstrap4\ActiveForm;
-use yii\bootstrap4\Html;
+use yii\helpers\Html;
+use yii\bootstrap\ActiveForm;
+use yii\web\View;
 
 $this->title = 'Login';
 $this->params['breadcrumbs'][] = $this->title;
+
+// $this->registerJS('
+// $(".invalid-feedback").ready(function(){
+//     alert("skfdjks")
+// })
+//                   $(".invalid-feedback").on("DOMNodeInserted",function(){
+
+
+//                       currentInput = $(this).siblings(":input")
+
+//                     currentInput.addClass("is-invalid")
+//                     currentInput.removeClass("is-valid")
+
+//                   });
+
+//                   $(".invalid-feedback").on("DOMNodeRemoved",function(){
+//                     currentInput = $(this).siblings(":input")
+
+//                     currentInput.removeClass("is-invalid")
+//                     currentInput.addClass("is-valid")
+
+//                 });      
+//                   ', View::POS_END);
 ?>
-<div class="site-login">
-    <h1><?= Html::encode($this->title) ?></h1>
 
-    <p>Please fill out the following fields to login:</p>
+<section id="departments" class="departments">
 
-    <?php $form = ActiveForm::begin([
-        'id' => 'login-form',
-        'layout' => 'horizontal',
-        'fieldConfig' => [
-            'template' => "{label}\n{input}\n{error}",
-            'labelOptions' => ['class' => 'col-lg-1 col-form-label mr-lg-3'],
-            'inputOptions' => ['class' => 'col-lg-3 form-control'],
-            'errorOptions' => ['class' => 'col-lg-7 invalid-feedback'],
-        ],
-    ]); ?>
+    <div class="container" style="min-height: 290px;" data-aos="fade-up">
 
-        <?= $form->field($model, 'username')->textInput(['autofocus' => true]) ?>
+        <div class="section-title">
+            <div class="row">
 
-        <?= $form->field($model, 'password')->passwordInput() ?>
+                <div class="col-lg-6">
 
-        <?= $form->field($model, 'rememberMe')->checkbox([
-            'template' => "<div class=\"offset-lg-1 col-lg-3 custom-control custom-checkbox\">{input} {label}</div>\n<div class=\"col-lg-8\">{error}</div>",
-        ]) ?>
+                    <!-- <div class="row">
+                </div> -->
 
-        <div class="form-group">
-            <div class="offset-lg-1 col-lg-11">
-                <?= Html::submitButton('Login', ['class' => 'btn btn-primary', 'name' => 'login-button']) ?>
+                </div>
+
+                <div class="col-lg-4">
+
+                    <?php $form = ActiveForm::begin([
+                        'id' => 'login-form',
+                        'enableClientScript' => false,
+                        'errorSummaryCssClass' => '',
+                        'encodeErrorSummary' => true,
+                        'errorCssClass' => 'is-invalid'
+                    ]); ?>
+
+
+                    <?php if (strlen($form->errorSummary($model, [
+                        'header' => '',
+                        'class' => 'text-danger',
+                        // 'tag' => 'div',
+                    ])) > 62) {
+                    ?>
+                        <div class="alert alert-danger">
+                            <?= $form->errorSummary($model, [
+                                'header' => '<b>Peringatan</b>',
+                                'class' => 'text-danger text-left'
+                            ]) ?>
+                        </div>
+                    <?php
+                    } ?>
+                    <div class="form-row">
+
+                        <?= $form->field($model, 'username', [
+                            'template' => '
+                            {input}
+                            {error}
+                            <div class="validate"></div>
+                            ',
+                            'options' => ['class' => 'col form-group'],
+                            'errorOptions' => ['class' => 'invalid-feedback'],
+                        ])->textInput([
+                            'autofocus' => true,
+                            'placeholder' => 'Username',
+                            'class' => 'form-control',
+                            'data' => ['rule' => 'minlen:4', 'msg' => 'Please enter at least 4 chars']
+                        ]) ?>
+
+                    </div>
+
+
+                    <?= $form->field($model, 'password', [
+                        'template' => '
+                            {input}
+                            {error}
+                            <div class="validate"></div>
+                            ',
+                        'options' => ['class' => 'form-group'],
+                        'errorOptions' => ['class' => 'invalid-feedback'],
+                    ])->passwordInput([
+                        'placeholder' => 'Password',
+                        'class' => 'form-control',
+                        'data' => ['rule' => 'minlen:4', 'msg' => 'Please enter at least 8 chars of subject']
+                    ]) ?>
+
+
+
+                    <?= $form->field($model, 'rememberMe')->checkbox([
+                        'template' => "<div class=\"form-group text-left\">{input} {label}</div>\n<div class=\"col-lg-8\">{error}</div>",
+                    ]) ?>
+
+                    <div class="text-center">
+                        <?= Html::submitButton('Login', ['class' => 'btn btn-primary', 'style' => 'background-color: #00cccc; width: 200px; height: 40px; border: none; border-radius: 20px; color: #ffffff ;', 'name' => 'login-button']) ?>
+                    </div>
+
+                    <?php ActiveForm::end(); ?>
+
+                </div>
             </div>
+
         </div>
 
-    <?php ActiveForm::end(); ?>
-
-    <div class="offset-lg-1" style="color:#999;">
-        You may login with <strong>admin/admin</strong> or <strong>demo/demo</strong>.<br>
-        To modify the username/password, please check out the code <code>app\models\User::$users</code>.
     </div>
-</div>
+</section>
