@@ -1,8 +1,8 @@
 <?php
 
 $params = require __DIR__ . '/params.php';
+$before_action = require __DIR__ . '/before_action.php';
 $db = require __DIR__ . '/db.php';
-
 $config = [
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
@@ -14,14 +14,30 @@ $config = [
     'components' => [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
-            'cookieValidationKey' => '0sFYzN--hhCK2AOfJ2_6_8VavVW-w5VR',
+            'cookieValidationKey' => '2lFr5tVHhkM9JpariUOPyl43clzDZ7KE',
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
         'user' => [
-            'identityClass' => 'app\models\User',
+            'class' => 'yii\web\User',
+            'identityClass' => 'app\models\AhliGizi',
+            'idParam' => 'ahli_gizi', // Sebagai nama variable session
             'enableAutoLogin' => true,
+            'enableSession' => true,
+            'identityCookie' => [
+                'name' => '_identity_ahli_gizi',
+            ]
+        ],
+        'pasien' => [
+            'class' => 'yii\web\User',
+            'identityClass' => 'app\models\Pasien',
+            'idParam' => 'pasien',   // Sebagai nama variable session
+            'enableAutoLogin' => true,
+            'enableSession' => true,
+            'identityCookie' => [
+                'name' => '_identity_pasien',
+            ]
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -29,7 +45,7 @@ $config = [
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
             // send all mails to a file by default. You have to set
-            // 'useFileTransport' to false and configure transport
+            // 'useFileTransport' to false and configure a transport
             // for the mailer to send real emails.
             'useFileTransport' => true,
         ],
@@ -51,8 +67,17 @@ $config = [
             ],
         ],
         */
+
+        'assetManager' => [
+            'bundles' => [
+                'yii\bootstrap\BootstrapAsset' => false
+            ],
+        ],
+
     ],
+    'layout' => 'main.php',
     'params' => $params,
+    'on beforeAction' => $before_action,
 ];
 
 if (YII_ENV_DEV) {
