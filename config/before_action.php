@@ -5,9 +5,10 @@ use yii\web\NotFoundHttpException;
 
 return  function ($event) {
 
-    $controller_ahli_gizi = ['ahli-gizi','pasien', 'penyakit', 'pengobatan'];
-    $controller_pasien = ['pasien', 'diagnosis'];
+    $controller_ahli_gizi = ['ahli-gizi','pasien', 'penyakit', 'pengobatan','default'];
+    $controller_pasien = ['pasien', 'diagnosis','default'];
     $controller = $event->action->controller->id;
+    // print_r($controller);die;
 
     if (!Yii::$app->user->isGuest) {
         Yii::$app->layout = 'ahli-gizi';

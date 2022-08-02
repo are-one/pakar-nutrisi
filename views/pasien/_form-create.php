@@ -54,6 +54,36 @@ use yii\widgets\ActiveForm;
                                                 'maxlength' => true, 'class' => 'span3', 'required' => true
                                             ])->label('Alamat : ', ['class' => 'control-label']) ?>
 
+                    <?= $form->field($model, 'status', [
+                                                'template' => '
+                                            {label}
+                                            <div class="controls">
+                                                    {input}
+                                                    {error}
+                                            </div>
+                                            ',
+                                                'options' => [
+                                                    'class' => 'control-group'
+                                                ]
+                                            ])->textInput([
+                                                'maxlength' => true, 'class' => 'span3', 'required' => true
+                                            ])->label('Status : ', ['class' => 'control-label']) ?>
+
+                    <?= $form->field($model, 'email', [
+                                                'template' => '
+                                            {label}
+                                            <div class="controls">
+                                                    {input}
+                                                    {error}
+                                            </div>
+                                            ',
+                                                'options' => [
+                                                    'class' => 'control-group'
+                                                ]
+                                            ])->textInput([
+                                                'maxlength' => true, 'class' => 'span3', 'required' => true
+                                            ])->label('Email : ', ['class' => 'control-label']) ?>
+
                     <?= $form->field($model, 'umur', [
                                                 'template' => '
                                             {label}
@@ -66,7 +96,7 @@ use yii\widgets\ActiveForm;
                                                     'class' => 'control-group'
                                                 ]
                                             ])->textInput([
-                                                'type' => 'number', 'min' => '0',
+                                                'type' => 'number', 'min' => '10',
                                                 'maxlength' => true, 'class' => 'span3', 'required' => true
                                             ])->label('Umur : ', ['class' => 'control-label']) ?>
 
@@ -117,35 +147,7 @@ use yii\widgets\ActiveForm;
                                                 'maxlength' => true, 'class' => 'span3', 'required' => true
                                             ])->label('HB : ', ['class' => 'control-label']) ?>
 
-                    <?= $form->field($model, 'status', [
-                                                'template' => '
-                                            {label}
-                                            <div class="controls">
-                                                    {input}
-                                                    {error}
-                                            </div>
-                                            ',
-                                                'options' => [
-                                                    'class' => 'control-group'
-                                                ]
-                                            ])->textInput([
-                                                'maxlength' => true, 'class' => 'span3', 'required' => true
-                                            ])->label('Status : ', ['class' => 'control-label']) ?>
 
-                    <?= $form->field($model, 'email', [
-                                                'template' => '
-                                            {label}
-                                            <div class="controls">
-                                                    {input}
-                                                    {error}
-                                            </div>
-                                            ',
-                                                'options' => [
-                                                    'class' => 'control-group'
-                                                ]
-                                            ])->textInput([
-                                                'maxlength' => true, 'class' => 'span3', 'required' => true
-                                            ])->label('Email : ', ['class' => 'control-label']) ?>
 
                     <?= $form->field($model, 'username', [
                                                 'template' => '

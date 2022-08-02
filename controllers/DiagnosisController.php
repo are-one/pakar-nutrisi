@@ -48,34 +48,52 @@ class DiagnosisController extends Controller
         $userId = Yii::$app->pasien->identity->id;
         // $ahliId = Yii::$app->pasien->identity->ahli_gizi_id;
         
-        try {
+        // try {
+            $transaction = Yii::$app->db->beginTransaction();
+            
             if($userId){
+                $pasien = Pasien::findOne(['id_pasien' => $userId]);
+                
                 $model = new Diagnosis();
                 $model->scenario = $model::SCENARIO_DIAGNOSA;
+                $model->pasien_id = $pasien->id_pasien;
+                $model->usia_ibu_hamil = $pasien->umur;
+                $model->usia_kandungan = $pasien->usia_kandungan;
+                $model->pertambahan_bb = $pasien->pertambahan_bb;
+                $model->hemoglobin = $pasien->hb;
             
                 if ($model->load(Yii::$app->request->post()) ) {
-                    $this->fuzzyfikasi($model->getAttributes(['usia_ibu_hamil', 'usia_kandungan','pertambahan_bb','hemoglobin']));
-                    die;
+                    $result =  $this->fuzzyTsukamoto($model->getAttributes(['usia_ibu_hamil', 'usia_kandungan','pertambahan_bb','hemoglobin']));
+                    $model->penyakit_id = $result[0];
+                    $model->created_at = date('Y-m-d H:i:s');
 
-                    if($model->save()){
-                        Yii::$app->session->setFlash('success', 'Profil berhasil diubah');
+                    $pasien->umur = $model->usia_ibu_hamil;
+                    $pasien->usia_kandungan = $model->usia_kandungan;
+                    $pasien->pertambahan_bb = $model->pertambahan_bb;
+                    $pasien->hb = $model->hemoglobin;
+
+                    if($model->save() && $pasien->save()){
+                        $transaction->commit();
+                        Yii::$app->session->setFlash('success', 'Diagnosa dan Update data berhasil diproses');
                     }else{
-                        Yii::$app->session->setFlash('error', 'Profil gagal diubah');
+                        $transaction->rollBack();
+                        Yii::$app->session->setFlash('error', 'Diagnosa dan Update data gagal diproses');
                     }
-
-                    $model->password_baru = "";
-                    $model->ulangi_password_baru = "";
+                    
                 }
-    
+                
                 return $this->render('index', [
                     'model' => $model,
                 ]);
+                
             }else{
+                $transaction->rollBack();
                 throw new NotFoundHttpException('The requested page does not exist.');
             }
-        } catch (\Exception $e) {
-            throw new ServerErrorHttpException('Terjadi Masalah');
-        }
+        // } catch (\Exception $e) {
+        //     $transaction->rollBack();
+        //     throw new ServerErrorHttpException('Terjadi Masalah');
+        // }
     }
 
     /**
@@ -172,7 +190,7 @@ class DiagnosisController extends Controller
         
     }
 
-    private function fuzzyfikasi(Array $inputan)
+    private function fuzzyTsukamoto(Array $inputan)
     {
         $fuzzyfikasi = [];
 
@@ -187,7 +205,7 @@ class DiagnosisController extends Controller
                 $fuzzyfikasi[$key] = $this->keanggotaanInputHemoglobin($value);
             }
         }
-
+        
         // Mengambil data nilai keanggotaan yang tidak bernilai 0
         $dataNilaiKeanggotaan = $this->filterKeanggotaan($fuzzyfikasi);
         
@@ -196,17 +214,19 @@ class DiagnosisController extends Controller
         
         // buat kombinasi fungsi keanggotaan untuk dicocokkan dgn rule yang ada
         $kombinasi = Diagnosis::combinations($linguistikKeanggotaan);
-
+        
         // mencocokkan rule yang sesuai
         $ruleSesuai = $this->sesuaikanRule($kombinasi);
-
+        
         // proses inferensi
         $inferensi = $this->inferensi($dataNilaiKeanggotaan, $ruleSesuai);
         [$alphaPredikatRule, $z] = $inferensi;
-
+        
         // proses defuzzyfikasi => Menentukan hasil
         $defuzzyfikasi = $this->defuzzyfikasi($alphaPredikatRule, $z);
         
+        // print_r($ruleSesuai);die;
+        return $defuzzyfikasi;
     }
 
     private function keanggotaanInputUsiaIbuHamil($nilai)
@@ -356,11 +376,11 @@ class DiagnosisController extends Controller
 
         // Lebih => parameter = [15, 20]
         if($nilai <= 15){
-            $hasilKeanggotaan['lebih'] = 0;
+            $hasilKeanggotaan['tinggi'] = 0;
         }elseif($nilai > 15 && $nilai < 20){
-            $hasilKeanggotaan['lebih'] = round((float) ($nilai - 15)/(20 -15), 2);
+            $hasilKeanggotaan['tinggi'] = round((float) ($nilai - 15)/(20 -15), 2);
         }elseif($nilai >= 20){
-            $hasilKeanggotaan['lebih'] = 1;
+            $hasilKeanggotaan['tinggi'] = 1;
         }
 
         return $hasilKeanggotaan;
@@ -372,75 +392,75 @@ class DiagnosisController extends Controller
 
         // Anemia Berat => parameter = [5, 7, 9]
         if($nilai <= 7){
-            $hasilKeanggotaan['anemia_berat'] = 1;
+            $hasilKeanggotaan['P01'] = 1;
         }elseif($nilai > 7 && $nilai < 9){
-            $hasilKeanggotaan['anemia_berat'] = round((float) (9 - $nilai)/(9 - 7), 2);
+            $hasilKeanggotaan['P01'] = round((float) (9 - $nilai)/(9 - 7), 2);
         }elseif($nilai >= 9){
-            $hasilKeanggotaan['anemia_berat'] = 0;
+            $hasilKeanggotaan['P01'] = 0;
         }
 
         // Anemia Sedang => parameter = [7, 9, 11]
         if($nilai <= 7 || $nilai >= 11){
-            $hasilKeanggotaan['anemia_sedang'] = 0;
+            $hasilKeanggotaan['P02'] = 0;
         }elseif($nilai > 7 && $nilai < 9){
-            $hasilKeanggotaan['anemia_sedang'] = round((float) ($nilai - 7)/(9 - 7), 2);
+            $hasilKeanggotaan['P02'] = round((float) ($nilai - 7)/(9 - 7), 2);
         }elseif($nilai == 9){
-            $hasilKeanggotaan['anemia_sedang'] = 1;
+            $hasilKeanggotaan['P02'] = 1;
         }elseif($nilai > 9 && $nilai < 11){
-            $hasilKeanggotaan['anemia_sedang'] = round((float) (11 - $nilai)/(11 - 9), 2);
+            $hasilKeanggotaan['P02'] = round((float) (11 - $nilai)/(11 - 9), 2);
         }
 
         // Anemia Ringan => parameter = [9, 11, 13]
         if($nilai <= 9 || $nilai >= 13){
-            $hasilKeanggotaan['anemia_ringan'] = 0;
+            $hasilKeanggotaan['P03'] = 0;
         }elseif($nilai > 9 && $nilai < 11){
-            $hasilKeanggotaan['anemia_ringan'] = round((float) ($nilai - 9)/(11 - 9), 2);
+            $hasilKeanggotaan['P03'] = round((float) ($nilai - 9)/(11 - 9), 2);
         }elseif($nilai == 11){
-            $hasilKeanggotaan['anemia_ringan'] = 1;
+            $hasilKeanggotaan['P03'] = 1;
         }elseif($nilai >= 11 && $nilai < 13){
-            $hasilKeanggotaan['anemia_ringan'] = round((float) (13 - $nilai)/(13 - 11), 2);
+            $hasilKeanggotaan['P03'] = round((float) (13 - $nilai)/(13 - 11), 2);
         }
 
         // Normal => parameter = [11, 13, 15, 17]
         if($nilai <= 11 || $nilai >= 17){
-            $hasilKeanggotaan['normal'] = 0;
+            $hasilKeanggotaan['P04'] = 0;
         }elseif($nilai > 11 && $nilai < 13){
-            $hasilKeanggotaan['normal'] = round((float) ($nilai - 11)/(13 -11), 2);
+            $hasilKeanggotaan['P04'] = round((float) ($nilai - 11)/(13 -11), 2);
         }elseif($nilai >= 13 && $nilai <= 15){
-            $hasilKeanggotaan['normal'] = 1;
+            $hasilKeanggotaan['P04'] = 1;
         }elseif($nilai > 15 && $nilai < 17){
-            $hasilKeanggotaan['normal'] = round((float) (17 - $nilai)/(17 - 15), 2);
+            $hasilKeanggotaan['P04'] = round((float) (17 - $nilai)/(17 - 15), 2);
         }
 
         // Hipertensi Ringan => parameter = [15, 17, 19]
         if($nilai <= 15 || $nilai >= 19){
-            $hasilKeanggotaan['hipertensi_ringan'] = 0;
+            $hasilKeanggotaan['P05'] = 0;
         }elseif($nilai > 15 && $nilai < 17){
-            $hasilKeanggotaan['hipertensi_ringan'] = round((float) ($nilai - 15)/(17 - 15), 2);
+            $hasilKeanggotaan['P05'] = round((float) ($nilai - 15)/(17 - 15), 2);
         }elseif($nilai == 17){
-            $hasilKeanggotaan['hipertensi_ringan'] = 1;
+            $hasilKeanggotaan['P05'] = 1;
         }elseif($nilai > 17 && $nilai < 19){
-            $hasilKeanggotaan['hipertensi_ringan'] = round((float) (19 - $nilai)/(19 - 17), 2);
+            $hasilKeanggotaan['P05'] = round((float) (19 - $nilai)/(19 - 17), 2);
         }
         
         // Hipertensi Sedang => parameter = [17, 19, 20]
         if($nilai <= 17 || $nilai >= 20){
-            $hasilKeanggotaan['hipertensi_sedang'] = 0;
+            $hasilKeanggotaan['P06'] = 0;
         }elseif($nilai > 17 && $nilai < 19){
-            $hasilKeanggotaan['hipertensi_sedang'] = round((float) ($nilai - 17)/(19 - 17), 2);
+            $hasilKeanggotaan['P06'] = round((float) ($nilai - 17)/(19 - 17), 2);
         }elseif($nilai == 19){
-            $hasilKeanggotaan['hipertensi_sedang'] = 1;
+            $hasilKeanggotaan['P06'] = 1;
         }elseif($nilai >= 19 && $nilai < 20){
-            $hasilKeanggotaan['hipertensi_sedang'] = round((float) (20 - $nilai)/(20 - 19), 2);
+            $hasilKeanggotaan['P06'] = round((float) (20 - $nilai)/(20 - 19), 2);
         }
 
         // Hipertensi Berat => parameter = [19, 20]
         if($nilai <= 19){
-            $hasilKeanggotaan['hipertensi_berat'] = 0;
+            $hasilKeanggotaan['P07'] = 0;
         }elseif($nilai > 19 && $nilai < 20){
-            $hasilKeanggotaan['hipertensi_berat'] = round((float) ($nilai - 19)/(20 - 19), 2);
+            $hasilKeanggotaan['P07'] = round((float) ($nilai - 19)/(20 - 19), 2);
         }elseif($nilai >= 19){
-            $hasilKeanggotaan['hipertensi_berat'] = 1;
+            $hasilKeanggotaan['P07'] = 1;
         }
             
 
@@ -543,6 +563,10 @@ class DiagnosisController extends Controller
         $keanggotaanTertinggi = max($kesimpulan);
         $kesimpulanLinguistik = array_keys($kesimpulan, $keanggotaanTertinggi);
 
+        if(count($kesimpulanLinguistik) == 1){
+            $kesimpulanLinguistik = $kesimpulanLinguistik[0];
+        }
+
         return [$kesimpulanLinguistik, $keanggotaanTertinggi];
         
     }
@@ -553,37 +577,37 @@ class DiagnosisController extends Controller
         $result = 0;
 
 
-        if($outputLinguistik == 'anemia_berat') // anemia berat 
+        if($outputLinguistik == 'P01') // anemia berat 
         {
              $z[] = 9 - ($alphaPredikat * (9-7));
         }
-        elseif($outputLinguistik == 'anemia_sedang') // Anemia Sedang
+        elseif($outputLinguistik == 'P02') // Anemia Sedang
         {
             $z[] = ($alphaPredikat * (9-7)) + 7;
             $z[] = 11 - ($alphaPredikat * (11-9));
         }      
-        elseif($outputLinguistik == 'anemia_ringan')// Anemia Ringan
+        elseif($outputLinguistik == 'P03')// Anemia Ringan
         {
             $z[] = ($alphaPredikat * (11-9)) + 9;
             $z[] = 13 - ($alphaPredikat * (13-11));
 
         }        
-        elseif($outputLinguistik == 'normal') // Normal
+        elseif($outputLinguistik == 'P04') // Normal
         {
             $z[] = ($alphaPredikat * (13-11)) + 11;
             $z[] = 17 - ($alphaPredikat * (17-15));
         }
-        elseif($outputLinguistik == 'hipertensi_ringan') // Hipertensi Ringan
+        elseif($outputLinguistik == 'P05') // Hipertensi Ringan
         {
             $z[] = ($alphaPredikat * (17 -15)) + 15;
             $z[] = 19 - ($alphaPredikat * (19-17));
         }
-        elseif($outputLinguistik == 'hipertensi_sedang') // Hipertensi Sedang
+        elseif($outputLinguistik == 'P06') // Hipertensi Sedang
         {
             $z[] = ($alphaPredikat * (19-17)) + 17;
             $z[] = 20 - ($alphaPredikat * (20-19));
         }
-        elseif($outputLinguistik == 'hipertensi_berat') // Hipertensi Berat
+        elseif($outputLinguistik == 'P07') // Hipertensi Berat
         {
             $z[] = ($alphaPredikat * (20-19)) + 19;
         }

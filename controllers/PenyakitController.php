@@ -2,9 +2,13 @@
 
 namespace app\controllers;
 
+use app\models\Model;
+use app\models\Pengobatan;
 use Yii;
 use app\models\Penyakit;
+use app\models\PenyakitHasPengobatan;
 use app\models\search\PenyakitSearch;
+use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -52,8 +56,18 @@ class PenyakitController extends Controller
      */
     public function actionView($id)
     {
+        $queryPenyakitPengobatan = PenyakitHasPengobatan::find()->where(['penyakit_id' => $id]);
+
+        $dataProviderPenyakitHasPengobatan = new ActiveDataProvider([
+            'query' => $queryPenyakitPengobatan,
+            'pagination' => [
+                'pageSize' => false,
+            ]
+        ]);
+        
         return $this->render('view', [
             'model' => $this->findModel($id),
+            'dataProviderPenyakitHasPengobatan' => $dataProviderPenyakitHasPengobatan,
         ]);
     }
 
@@ -72,6 +86,53 @@ class PenyakitController extends Controller
 
         return $this->render('create', [
             'model' => $model,
+        ]);
+    }
+
+    public function actionCreatePengobatanPenyakit($id)
+    {
+        // === INSIALISASI MODEL
+        $modelPenyakitHasPengobatan = [new PenyakitHasPengobatan()];
+        $sql = "SELECT * FROM pengobatan WHERE id_pengobatan NOT IN (SELECT pengobatan_id FROM penyakit_has_pengobatan WHERE penyakit_id='$id')";
+        $listPengobatan = Pengobatan::findBySql($sql)->all();
+
+        // === PROSES MENYIMPAN
+        if (Yii::$app->request->isPost) {
+            $modelPenyakitHasPengobatan = Model::createMultiple(PenyakitHasPengobatan::className());
+
+            Model::loadMultiple($modelPenyakitHasPengobatan, Yii::$app->request->post());
+
+            if (isset($id)) {
+                $transaction = Yii::$app->db->beginTransaction();
+
+                try {
+                    foreach ($modelPenyakitHasPengobatan as $pengobatanPenyakit) {
+                        $pengobatanPenyakit->penyakit_id = $id;
+
+                        if (!($status = $pengobatanPenyakit->save())) {
+                            $transaction->rollBack();
+
+                            break;
+                        }
+                    }
+
+                    if ($status) {
+                        $transaction->commit();
+
+                        return $this->redirect(['view', 'id' => $id]);
+                    }
+                } catch (\Throwable $th) {
+                    throw $th;
+                }
+            }
+        }
+
+
+        // === MERENDER TAMPILAN
+        return $this->render('create-pengobatan-penyakit', [
+            'id_penyakit' => $id,
+            'modelPenyakitHasPengobatan' => empty($modelPenyakitHasPengobatan) ? [new PenyakitHasPengobatan()] : $modelPenyakitHasPengobatan,
+            'listPengobatan' => $listPengobatan,
         ]);
     }
 
@@ -103,11 +164,28 @@ class PenyakitController extends Controller
      * @throws NotFoundHttpException if the model cannot be found
      */
     public function actionDelete($id)
-    {
-        $this->findModel($id)->delete();
+    {   
+        if(PenyakitHasPengobatan::deleteAll(['penyakit_id' => $id])){
+            Yii::$app->session->setFlash('success', 'Data penyakit berhasil dihapus');
+            $this->findModel($id)->delete();
+        }else{
+            Yii::$app->session->setFlash('error', 'Data penyakit gagal dihapus');
+        }
 
         return $this->redirect(['index']);
     }
+
+    /** =========================================================================================
+     =======  AKSI MENGHAPUS DATA PENYAKIT HAS PENGOBATAN  ==============================================
+     =============================================================================================*/
+     public function actionDeletePenyakitPengobatan($penyakit_id, $pengobatan_id)
+     {
+         $modelPenangananPenyakit = PenyakitHasPengobatan::find()->where(['penyakit_id' => $penyakit_id, 'pengobatan_id' => $pengobatan_id])->one();
+ 
+         $modelPenangananPenyakit->delete();
+ 
+         return $this->redirect(['view', 'id' => $penyakit_id]);
+     }
 
     /**
      * Finds the Penyakit model based on its primary key value.

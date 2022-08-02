@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use Yii;
 use app\models\Pengobatan;
+use app\models\PenyakitHasPengobatan;
 use app\models\search\PengobatanSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -104,7 +105,12 @@ class PengobatanController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        if(PenyakitHasPengobatan::deleteAll(['pengobatan_id' => $id])){
+            Yii::$app->session->setFlash('success', 'Data pengobatan dan semua yang berelasi berhasil dihapus');
+            $this->findModel($id)->delete();
+        }else{
+            Yii::$app->session->setFlash('error', 'Data pengobatan dan semua yang berelasi gagal dihapus');
+        }
 
         return $this->redirect(['index']);
     }
