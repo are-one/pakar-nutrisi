@@ -188,21 +188,25 @@ class DiagnosisController extends Controller
             }
         }
 
+        // Mengambil data nilai keanggotaan yang tidak bernilai 0
         $dataNilaiKeanggotaan = $this->filterKeanggotaan($fuzzyfikasi);
         
+        // Mengambil nilai linguistik dari hasil perhitungan fungsi keanggotaan
         $linguistikKeanggotaan = $this->getLinguistic($dataNilaiKeanggotaan);
         
         // buat kombinasi fungsi keanggotaan untuk dicocokkan dgn rule yang ada
         $kombinasi = Diagnosis::combinations($linguistikKeanggotaan);
 
+        // mencocokkan rule yang sesuai
         $ruleSesuai = $this->sesuaikanRule($kombinasi);
 
-        // print_r($linguistikKeanggotaan);
-        // print_r($kombinasi);
-        // print_r(Diagnosis::getRules());
-        // print_r($ruleSesuai);
-        print_r($this->domainOutput($dataNilaiKeanggotaan, $ruleSesuai));
-        // print_r($dataNilaiKeanggotaan);
+        // proses inferensi
+        $inferensi = $this->inferensi($dataNilaiKeanggotaan, $ruleSesuai);
+        [$alphaPredikatRule, $z] = $inferensi;
+
+        // proses defuzzyfikasi => Menentukan hasil
+        $defuzzyfikasi = $this->defuzzyfikasi($alphaPredikatRule, $z);
+        
     }
 
     private function keanggotaanInputUsiaIbuHamil($nilai)
@@ -493,11 +497,12 @@ class DiagnosisController extends Controller
         return $hasil;
     }
 
-    private function domainOutput($dataNilaiKeanggotaan, $ruleSesuai)
+    private function inferensi($dataNilaiKeanggotaan, $ruleSesuai)
     {
         $nilaiKeanggotaanRule = array();
         $keysVariabel = array_keys($dataNilaiKeanggotaan);
         
+        // Mengabil nilai keanggotaan dari rule yang sesuai
         foreach ($ruleSesuai as $noRule => $data) {
             $dataLingiustikRule = $data[0];
             
@@ -507,33 +512,42 @@ class DiagnosisController extends Controller
             }
         }
         
+        // Proses MIN dari nilai keanggotaan tiap rule
         $alphaPredikatRule = [];
         foreach ($nilaiKeanggotaanRule as $noRule => $values) {
             $alphaPredikatRule[$noRule] = min($values);
         }
         
-        // print_r($alphaPredikatRule);
         $z = [];
         foreach ($alphaPredikatRule as $noRule => $alphaPredikat) {
             $outputLinguistik = $ruleSesuai[$noRule][1];
-            $z[$noRule] = $this->hitungNilaiZ($outputLinguistik, $alphaPredikat);
+            $z[$noRule] = $this->domainOutput($outputLinguistik, $alphaPredikat);
         }
 
-        print_r($z);
-        $defuzzyfikasi = 0;
-        
-        // sum product z with alphaPredikat
-        $totalz
-        foreach ($z as $noRule => $zValue) {
-            
-        }
-        // $predikat = min($nilaiKeanggotaan);
-        
-        // if()
-        // return
+        return [$alphaPredikatRule, $z];
     }
 
-    public function hitungNilaiZ($outputLinguistik, $alphaPredikat)
+    private function defuzzyfikasi($alphaPredikatRule, $z)
+    {
+        
+
+        $defuzzyfikasi = 0;
+        $totalZ = 0; // sum product z with alphaPredikat
+        
+        foreach ($z as $noRule => $zValue) {
+            $totalZ += $alphaPredikatRule[$noRule] * $zValue;
+        }
+        $defuzzyfikasi = (float) $totalZ/(array_sum($alphaPredikatRule));
+
+        $kesimpulan = $this->keanggotaanOutputKondisiIbuHamil($defuzzyfikasi);
+        $keanggotaanTertinggi = max($kesimpulan);
+        $kesimpulanLinguistik = array_keys($kesimpulan, $keanggotaanTertinggi);
+
+        return [$kesimpulanLinguistik, $keanggotaanTertinggi];
+        
+    }
+
+    public function domainOutput($outputLinguistik, $alphaPredikat)
     {
         $z = [];
         $result = 0;
