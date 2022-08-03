@@ -52,8 +52,8 @@ use yii\widgets\ActiveForm;
                                                 'options' => [
                                                     'class' => 'control-group'
                                                 ]
-                                            ])->textInput([
-                                                'maxlength' => true, 'class' => 'span3', 'required' => true
+                                            ])->textarea([
+                                                'maxlength' => true, 'class' => 'span11','rows' => 5, 'required' => true
                                             ])->label('Pengobatan : ', ['class' => 'control-label'])  ?>
 
                         <div class="form-actions">
