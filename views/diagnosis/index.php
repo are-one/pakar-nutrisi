@@ -222,13 +222,14 @@ $this->params['breadcrumbs'][] = $this->title;
 
                                 <table class="table table-bordered table-hover">
                                     <tr>
-                                        <th colspan="3">
+                                        <th colspan="4">
                                             <h6>Data Hasil Diagnosa</h6>
                                         </th>
                                     </tr>
                                     <tr>
                                         <th width="5%">No</th>
                                         <th width="40%">Penyakit</th>
+                                        <th width="20%">Nilai</th>
                                         <th colspan="2">Waktu Diagnosa</th>
                                     </tr>
 
@@ -241,6 +242,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                     <tr>
                                         <td><?= $no ?></td>
                                         <td><?= $data->penyakit->nama_penyakit ?></td>
+                                        <td><?= round($data->hasil_diagnosis, 2) ?></td>
                                         <td><?= $data->created_at ?></td>
                                     </tr>
                                     <?php 
@@ -249,7 +251,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                     }else{
                                     ?>
                                     <tr>
-                                        <td colspan="2"><i>Tidak ada data penyakit yang terdiagnosa</i></td>
+                                        <td colspan="3"><i>Tidak ada data penyakit yang terdiagnosa</i></td>
                                     </tr>
                                     <?php
                                             }

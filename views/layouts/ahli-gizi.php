@@ -68,6 +68,10 @@ AdminAsset::register($this);
                     'label' => '<i class="icon icon-gift"></i> <span>Mengelola Data Pengobatan</span></a>',
                     'url' => ['/pengobatan/index']
                 ],
+                [
+                    'label' => '<i class="icon icon-gift"></i> <span>Hasil Diagnosa Pasien</span></a>',
+                    'url' => ['/diagnosis/hasil']
+                ],
                 // [
                 //     'label' => '<i class="icon icon-gift"></i> <span>Ubah Password</span></a>',
                 //     'url' => ['/admin/ubah-password']

@@ -6,6 +6,7 @@ use Yii;
 use app\models\Diagnosis;
 use app\models\Pasien;
 use app\models\search\DiagnosisSearch;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -23,6 +24,27 @@ class DiagnosisController extends Controller
     public function behaviors()
     {
         return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'actions' => ['index','delete'],
+                        'allow' => true,
+                        'matchCallback' => function()
+                        {
+                            return !Yii::$app->pasien->isGuest;
+                        }
+                    ],
+                    [
+                        'actions' => ['hasil','view','delete'],
+                        'allow' => true,
+                        'matchCallback' => function()
+                        {
+                            return !Yii::$app->user->isGuest;
+                        }
+                    ],
+                ],
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
@@ -64,7 +86,8 @@ class DiagnosisController extends Controller
             
                 if ($model->load(Yii::$app->request->post()) ) {
                     $result =  $this->fuzzyTsukamoto($model->getAttributes(['usia_ibu_hamil', 'usia_kandungan','pertambahan_bb','hemoglobin']));
-                    $model->penyakit_id = $result[0];
+                    $model->penyakit_id = $result['kondisi'];
+                    $model->hasil_diagnosis = (String) $result['nilai_kondisi'];
                     $model->created_at = date('Y-m-d H:i:s');
 
                     $pasien->umur = $model->usia_ibu_hamil;
@@ -78,8 +101,7 @@ class DiagnosisController extends Controller
                     }else{
                         $transaction->rollBack();
                         Yii::$app->session->setFlash('error', 'Diagnosa dan Update data gagal diproses');
-                    }
-                    
+                    }                    
                 }
                 
                 return $this->render('index', [
@@ -96,6 +118,28 @@ class DiagnosisController extends Controller
         // }
     }
 
+    public function actionHasil()
+    {
+        
+        try {
+            $ahliId = Yii::$app->user->identity->id_ahli;
+            $pasien = Pasien::find()->where(['ahli_gizi_id' => $ahliId])->all();
+            $pasienIds = ArrayHelper::getColumn($pasien,'id_pasien');
+            $searchModel = new DiagnosisSearch();
+            $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+            $dataProvider->query->andWhere(['IN','pasien_id',$pasienIds]);
+            $dataProvider->query->orderBy(['created_at' => SORT_DESC]);
+    
+            return $this->render('index-ahli-gizi', [
+                'searchModel' => $searchModel,
+                'dataProvider' => $dataProvider,
+            ]);
+            
+        } catch (\Exception $e) {
+            throw new ServerErrorHttpException('Terjadi Masalah');
+        }
+    }
+
     /**
      * Displays a single Diagnosis model.
      * @param string $id_diagnosis
@@ -104,10 +148,10 @@ class DiagnosisController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id_diagnosis, $pengobatan_id_pengobatan, $penyakit_id_penyakit)
+    public function actionView($id)
     {
         return $this->render('view', [
-            'model' => $this->findModel($id_diagnosis, $pengobatan_id_pengobatan, $penyakit_id_penyakit),
+            'model' => $this->findModel($id),
         ]);
     }
 
@@ -116,18 +160,18 @@ class DiagnosisController extends Controller
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
-    public function actionCreate()
-    {
-        $model = new Diagnosis();
+    // public function actionCreate()
+    // {
+    //     $model = new Diagnosis();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id_diagnosis' => $model->id_diagnosis, 'pengobatan_id_pengobatan' => $model->pengobatan_id_pengobatan, 'penyakit_id_penyakit' => $model->penyakit_id_penyakit]);
-        }
+    //     if ($model->load(Yii::$app->request->post()) && $model->save()) {
+    //         return $this->redirect(['view', 'id' => $model->id_diagnosis]);
+    //     }
 
-        return $this->render('create', [
-            'model' => $model,
-        ]);
-    }
+    //     return $this->render('create', [
+    //         'model' => $model,
+    //     ]);
+    // }
 
     /**
      * Updates an existing Diagnosis model.
@@ -138,12 +182,12 @@ class DiagnosisController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdate($id_diagnosis, $pengobatan_id_pengobatan, $penyakit_id_penyakit)
+    public function actionUpdate($id)
     {
-        $model = $this->findModel($id_diagnosis, $pengobatan_id_pengobatan, $penyakit_id_penyakit);
+        $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id_diagnosis' => $model->id_diagnosis, 'pengobatan_id_pengobatan' => $model->pengobatan_id_pengobatan, 'penyakit_id_penyakit' => $model->penyakit_id_penyakit]);
+            return $this->redirect(['view', 'id' => $model->id_diagnosis]);
         }
 
         return $this->render('update', [
@@ -160,11 +204,22 @@ class DiagnosisController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDelete($id_diagnosis, $pengobatan_id_pengobatan, $penyakit_id_penyakit)
+    public function actionDelete($id)
     {
-        $this->findModel($id_diagnosis, $pengobatan_id_pengobatan, $penyakit_id_penyakit)->delete();
+        $model = $this->findModel($id);
+        
+        if($model->delete()){
+            Yii::$app->session->setFlash('success','Data diagnosis berhasil dihapus');
+        }else{
+            Yii::$app->session->setFlash('error','Data diagnosis gagal dihapus');
+        }
 
-        return $this->redirect(['index']);
+        if(!Yii::$app->user->isGuest){
+            return $this->redirect(['hasil']);
+        }else{
+            return $this->redirect(['index']);
+        }
+
     }
 
     /**
@@ -176,9 +231,9 @@ class DiagnosisController extends Controller
      * @return Diagnosis the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($id_diagnosis, $pengobatan_id_pengobatan, $penyakit_id_penyakit)
+    protected function findModel($id)
     {
-        if (($model = Diagnosis::findOne(['id_diagnosis' => $id_diagnosis, 'pengobatan_id_pengobatan' => $pengobatan_id_pengobatan, 'penyakit_id_penyakit' => $penyakit_id_penyakit])) !== null) {
+        if (($model = Diagnosis::findOne(['id_diagnosis' => $id])) !== null) {
             return $model;
         }
 
@@ -567,7 +622,8 @@ class DiagnosisController extends Controller
             $kesimpulanLinguistik = $kesimpulanLinguistik[0];
         }
 
-        return [$kesimpulanLinguistik, $keanggotaanTertinggi];
+        return ['nilai_kondisi' => $defuzzyfikasi, 'kondisi' => $kesimpulanLinguistik];
+        // return [$kesimpulanLinguistik, $keanggotaanTertinggi];
         
     }
 

@@ -6,35 +6,63 @@ use yii\widgets\DetailView;
 /* @var $this yii\web\View */
 /* @var $model app\models\Diagnosis */
 
-$this->title = $model->id_diagnosis;
+$this->title = $model->pasien->nama;
 $this->params['breadcrumbs'][] = ['label' => 'Diagnoses', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
 <div class="diagnosis-view">
+    <div class="container-fluid">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+        <div class="row-fluid">
 
-    <p>
-        <?= Html::a('Update', ['update', 'id_diagnosis' => $model->id_diagnosis, 'pengobatan_id_pengobatan' => $model->pengobatan_id_pengobatan, 'penyakit_id_penyakit' => $model->penyakit_id_penyakit], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id_diagnosis' => $model->id_diagnosis, 'pengobatan_id_pengobatan' => $model->pengobatan_id_pengobatan, 'penyakit_id_penyakit' => $model->penyakit_id_penyakit], [
+            <div class="span12">
+                <h1><?= Html::encode($this->title) ?></h1>
+
+                <p>
+                    <?= Html::a('Kembali', ['hasil'], ['class' => 'btn btn-warning']) ?>
+                    <?= Html::a('Delete', ['delete', 'id' => $model->id_diagnosis], [
             'class' => 'btn btn-danger',
             'data' => [
                 'confirm' => 'Are you sure you want to delete this item?',
                 'method' => 'post',
             ],
         ]) ?>
-    </p>
+                </p>
 
-    <?= DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            'id_diagnosis',
-            'pengobatan_id_pengobatan',
-            'penyakit_id_penyakit',
-            'hasil_diagnosis:ntext',
-            'kondisi',
-        ],
-    ]) ?>
+                <?= DetailView::widget([
+                    'model' => $model,
+                    'attributes' => [
+                        // 'id_diagnosis',
+                        
+                        [
+                            'attribute' => 'pasien_id',
+                            'attribute' => 'Nama Pasien',
+                            'value' => function($model)
+                            {
+                                return $model->pasien->nama;
+                            }
+                        ],
+                        [
+                            'attribute' => 'kondisi',
+                            'value' => function($model)
+                            {
+                                return $model->penyakit->nama_penyakit;
+                            }
+                        ],
+                        [
+                            'attribute' => 'hasil_diagnosis',
+                            'value' => function($model)
+                            {
+                                return round($model->hasil_diagnosis, 2);
+                            }
+                        ],
+                        'created_at',
+                    ],
+                ]) ?>
 
+            </div>
+
+        </div>
+    </div>
 </div>

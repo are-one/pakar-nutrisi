@@ -17,7 +17,8 @@ class DiagnosisSearch extends Diagnosis
     public function rules()
     {
         return [
-            [['id_diagnosis', 'pengobatan_id_pengobatan', 'penyakit_id_penyakit', 'hasil_diagnosis', 'kondisi'], 'safe'],
+            [['id_diagnosis', 'pasien_id'], 'integer'],
+            [['hasil_diagnosis', 'kondisi', 'created_at', 'penyakit_id'], 'safe'],
         ];
     }
 
@@ -56,11 +57,15 @@ class DiagnosisSearch extends Diagnosis
         }
 
         // grid filtering conditions
-        $query->andFilterWhere(['like', 'id_diagnosis', $this->id_diagnosis])
-            ->andFilterWhere(['like', 'pengobatan_id_pengobatan', $this->pengobatan_id_pengobatan])
-            ->andFilterWhere(['like', 'penyakit_id_penyakit', $this->penyakit_id_penyakit])
-            ->andFilterWhere(['like', 'hasil_diagnosis', $this->hasil_diagnosis])
-            ->andFilterWhere(['like', 'kondisi', $this->kondisi]);
+        $query->andFilterWhere([
+            'id_diagnosis' => $this->id_diagnosis,
+            'created_at' => $this->created_at,
+            'pasien_id' => $this->pasien_id,
+        ]);
+
+        $query->andFilterWhere(['like', 'hasil_diagnosis', $this->hasil_diagnosis])
+            ->andFilterWhere(['like', 'kondisi', $this->kondisi])
+            ->andFilterWhere(['like', 'penyakit_id', $this->penyakit_id]);
 
         return $dataProvider;
     }

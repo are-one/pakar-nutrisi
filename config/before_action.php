@@ -5,7 +5,7 @@ use yii\web\NotFoundHttpException;
 
 return  function ($event) {
 
-    $controller_ahli_gizi = ['ahli-gizi','pasien', 'penyakit', 'pengobatan','default'];
+    $controller_ahli_gizi = ['ahli-gizi','pasien', 'penyakit', 'pengobatan','default','diagnosis'];
     $controller_pasien = ['pasien', 'diagnosis','default'];
     $controller = $event->action->controller->id;
     // print_r($controller);die;

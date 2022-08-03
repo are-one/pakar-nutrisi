@@ -66,6 +66,7 @@ class PasienController extends Controller
     {
         $searchModel = new PasienSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider->query->andWhere(['ahli_gizi_id' => Yii::$app->user->identity->id_ahli]);
 
         return $this->render('index', [
             'searchModel' => $searchModel,
