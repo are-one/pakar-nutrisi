@@ -28,7 +28,7 @@ class DiagnosisController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['index','delete'],
+                        'actions' => ['index'],
                         'allow' => true,
                         'matchCallback' => function()
                         {
