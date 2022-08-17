@@ -66,7 +66,7 @@ class PasienController extends Controller
     {
         $searchModel = new PasienSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $dataProvider->query->andWhere(['ahli_gizi_id' => Yii::$app->user->identity->id_ahli]);
+        $dataProvider->query->andWhere(['IN','ahli_gizi_id', [Yii::$app->user->identity->id_ahli, NULL]]);
 
         return $this->render('index', [
             'searchModel' => $searchModel,
@@ -140,7 +140,6 @@ class PasienController extends Controller
                 $model = $this->findModel($userId);
     
                 if ($model->load(Yii::$app->request->post()) ) {
-
                     if($model->password_baru){
                         $model->setPassword($model->password_baru);
                     }
@@ -162,7 +161,7 @@ class PasienController extends Controller
                 throw new NotFoundHttpException('The requested page does not exist.');
             }
         } catch (\Exception $e) {
-            throw new ServerErrorHttpException('Terjadi Masalah');
+            throw new ServerErrorHttpException('Terjadi Masalah: '.$e->getMessage());
         }
         
     }
@@ -171,8 +170,10 @@ class PasienController extends Controller
     {
         $model = $this->findModel($id);
 
-        // try {
+        try {
             if ($model->load(Yii::$app->request->post())) {
+                $ahliId = Yii::$app->user->identity->id_ahli;
+                    $model->ahli_gizi_id = $ahliId;
                 if($model->password_baru){
                     $model->setPassword($model->password_baru);
                 }
@@ -185,9 +186,9 @@ class PasienController extends Controller
                 'model' => $model,
             ]);
 
-        // } catch (\Exception $e) {
-        //     throw new ServerErrorHttpException('Terjadi masalah');
-        // }
+        } catch (\Exception $e) {
+            throw new ServerErrorHttpException('Terjadi masalah: '.$e->getMessage());
+        }
     }
 
     /**

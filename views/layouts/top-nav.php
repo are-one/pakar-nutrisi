@@ -23,19 +23,19 @@ use yii\helpers\Html;
 
         <!-- <a href="<?= Url::to(['site/index']) ?>" class="logo mr-auto"><img src="assets2/img/logo2.png" alt=""></a> -->
         <!-- Uncomment below if you prefer to use an image logo -->
-        <!-- <h1 class="logo mr-auto"><a href="index.html">Medicio</a></h1> -->
+        <h1 class="logo mr-auto"><a href="index.html">Fuzzy Tsukamoto</a></h1>
 
         <nav class="nav-menu d-none d-lg-block">
             <?=
             Nav::widget([
                 'options' => ['class' => false],
                 'items' => [
-                    ['label' => 'Home', 'url' => ['/site/index'], 'active' => false],
+                    ['label' => 'Home','options' => ['class' => 'mr-auto'], 'url' => ['/site/index'], 'active' => false],
                     // ['label' => 'Diagnosa Penyakit', 'url' => ['/site/diagnosa-penyakit'], 'visible' => !Yii::$app->pasien->isGuest],
                     // ['label' => 'Informasi', 'url' => ['/site/informasi']],
                     // ['label' => 'About', 'url' => ['/site/about']],
-                    // ['label' => 'Registrasi', 'url' => ['/site/daftar'], 'visible' => Yii::$app->pasien->isGuest],
-                    ['label' => 'Login', 'url' => ['/site/login'], 'active' => Yii::$app->controller->action->id == 'login'],
+                    ['label' => 'Login','options' => ['class' => 'pull-right'], 'url' => ['/site/login'], 'active' => Yii::$app->controller->action->id == 'login'],
+                    ['label' => 'Daftar', 'url' => ['/site/daftar'], 'visible' => Yii::$app->pasien->isGuest && Yii::$app->user->isGuest],
                 ],
             ]);
             ?>

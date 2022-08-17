@@ -46,13 +46,14 @@ class Pasien extends \yii\db\ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['username', 'password', 'email', 'nama', 'alamat', 'umur', 'ahli_gizi_id'], 'required'],
+            [['username', 'password', 'email', 'nama', 'alamat', 'umur'], 'required'],
             [['pertambahan_bb', 'ahli_gizi_id'], 'integer'],
             [['username', 'status'], 'string', 'max' => 50],
             [['password', 'email', 'nama'], 'string', 'max' => 100],
             [['alamat'], 'string', 'max' => 255],
             [['umur', 'usia_kandungan', 'hb'], 'string', 'max' => 10],
             [['username'], 'unique'],
+            [['email'],'email'],
             [['ahli_gizi_id'], 'exist', 'skipOnError' => true, 'targetClass' => AhliGizi::className(), 'targetAttribute' => ['ahli_gizi_id' => 'id_ahli']],
                                     
             ['ulangi_password_baru', 'required', 'message' => '{attribute} wajib diisi.', 'when' => function ($model) {

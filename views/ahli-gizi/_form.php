@@ -24,7 +24,7 @@ use yii\widgets\ActiveForm;
                         'errorCssClass' => 'error',
                     ]); ?>
 
-                    <?= $form->field($model, 'id_ahli', [
+                    <?php $form->field($model, 'id_ahli', [
                                                 'template' => '
                                             {label}
                                             <div class="controls">

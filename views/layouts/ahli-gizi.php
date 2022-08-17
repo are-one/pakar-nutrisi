@@ -30,13 +30,16 @@ AdminAsset::register($this);
     <!--Header-part-->
     <div id="header" style="background-color: #4A6B73;">
         <!-- <h2><a href="<?= Url::to(['site/index']) ?>">SPK</a></h2> -->
+        <h2 style="padding-top:1.3%; padding-left:1.7%">
+            <a href="<?= Url::to(['site/index']) ?>" style="color: #f4f4f4; margin-top:20px">Ahli Gizi</a>
+        </h2>
     </div>
     <!--close-Header-part-->
 
     <!--top-Header-menu-->
     <div id="user-nav" class="navbar" style="color: #f4f4f4; font-size:20pt; margin-top: 1.8%;">
         SISTEM PAKAR KEBUTUHAN NUTRISI IBU HAMIL
-        <!-- <h3 style=" color: #f4f4f4; margin-left: 280px;">SISTEM PAKAR KEBUTUHAN NUTRISI IBU HAMIL</h3> -->
+        <h3 style=" color: #f4f4f4; margin-left: 280px;">SISTEM PAKAR KEBUTUHAN NUTRISI IBU HAMIL</h3>
     </div>
 
     <div id="sidebar"><a href="#" class="visible-phone"><i class="icon icon-home"></i> Dashboard</a>

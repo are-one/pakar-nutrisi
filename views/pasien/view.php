@@ -49,7 +49,11 @@ $this->params['breadcrumbs'][] = $this->title;
                 'label' => 'Ahli Gizi',
                 'value' => function($model)
                 {
-                    return $model->ahliGizi->nama;
+                    if($model->ahliGizi){
+                        return $model->ahliGizi->nama;
+                    }else{
+                        return "Mendaftar melalui form pendaftaran";
+                    }
                 }
             ],
         ],

@@ -124,38 +124,33 @@ class SiteController extends Controller
 
 
 
-    // public function actionDaftar()
-    // {
-    //     $model = new Pasien();
-    //     $tgl_lama = "";
+    public function actionDaftar()
+    {
+        $model = new Pasien();
+        $tgl_lama = "";
 
-    //     if (Yii::$app->request->isPost) {
-    //         $dataPost = Yii::$app->request->post();
-
-
-    //         $model->load($dataPost);
-
-    //         if ($model->validate()) {
-    //             // Set tgl lahir
-    //             $tgl_lama = $model->tgl_lahir;
-    //             $tgl_lahir = strtotime($model->tgl_lahir);
-    //             $model->tgl_lahir = date('Y-m-d', $tgl_lahir);
+        if (Yii::$app->request->isPost) {
+            $dataPost = Yii::$app->request->post();
 
 
-    //             // Set Password
-    //             $model->setPassword($model->password);
+            $model->load($dataPost);
 
-    //             if ($model->save(false)) {
-    //                 return $this->redirect(['login']);
-    //             }
-    //             // print_r($model);
-    //             // die;
-    //         }
-    //     } else {
-    //         $model->tgl_lahir = $tgl_lama;
-    //     }
-    //     return $this->render('daftar', ['model' => $model]);
-    // }
+            if ($model->validate()) {
+                // Set Password
+                $model->setPassword($model->password);
+
+                if ($model->save(false)) {
+                    Yii::$app->session->setFlash('success','Data berhasil didaftarkan.');
+                    return $this->redirect(['login']);
+                }
+            }else{
+                Yii::$app->session->setFlash('error','Data gagal didaftarkan, pastikan data anda belum pernah didaftarkan.');
+            }
+            
+            
+        } 
+        return $this->render('daftar', ['model' => $model]);
+    }
 
     // =====================================================================================
     // DIAGNOSA PENYAKIT

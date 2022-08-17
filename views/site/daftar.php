@@ -11,8 +11,8 @@ use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 use yii\web\View;
 
-$this->title = 'Registrasi';
-$this->params['breadcrumbs'][] = 'Registrasi';
+$this->title = 'Daftar';
+$this->params['breadcrumbs'][] = $this->title;
 
 $this->registerJS('
                   $(".invalid-feedback").on("DOMNodeInserted",function(){
@@ -64,10 +64,19 @@ $this->registerJS('
                     <?php $form = ActiveForm::begin([
                         'id' => 'login-form',
                     ]); ?>
+                    <?php if(Yii::$app->session->hasFlash('success')): ?>
+                    <div class="alert alert-success">
+                        <?= Yii::$app->session->getFlash('success') ?>
+                    </div>
+                    <?php elseif(Yii::$app->session->hasFlash('error')): ?>
+                    <div class="alert alert-danger">
+                        <?= Yii::$app->session->getFlash('error') ?>
+                    </div>
+                    <?php endif; ?>
 
                     <div class="form-row">
 
-                        <?= $form->field($model, 'nama_pasien', [
+                        <?= $form->field($model, 'nama', [
                             'template' => '
                             {input}
                             {error}
@@ -83,8 +92,7 @@ $this->registerJS('
                         ]) ?>
 
 
-
-                        <?= $form->field($model, 'id_jk', [
+                        <?= $form->field($model, 'umur', [
                             'template' => '
                             {input}
                             {error}
@@ -92,52 +100,49 @@ $this->registerJS('
                             ',
                             'options' => ['class' => 'col form-group'],
                             'errorOptions' => ['class' => 'invalid-feedback'],
-                        ])->dropDownList(['1' => 'Laki-laki', '2' => 'Perempuan'], [
-                            'prompt' => '- Pilih Jenis Kelamin -',
+                        ])->textInput([
+                            'autofocus' => true,
+                            'placeholder' => 'Umur',
+                            'class' => 'form-control',
+                            'type' => 'number',
+                            'data' => ['rule' => 'max:100', 'msg' => 'Please enter at least 4 chars']
                         ]) ?>
                     </div>
 
 
 
                     <div class="form-row">
+
                         <?php // $form->field($model, 'tgl_lahir', [
                         //     'template' => '
                         //     {input}
+                        //     {error}
                         //     <div class="validate"></div>
                         //     ',
-                        //     'options' => ['class' => 'col-6 form-group']
-                        // ])->input('date') 
-                        ?>
-                        <?= $form->field($model, 'tgl_lahir', [
-                            'template' => '
-                            {input}
-                            {error}
-                            <div class="validate"></div>
-                            ',
-                            'options' => ['class' => 'col-6 form-group'],
-                            'inputOptions' => ['placeholder' => 'Tanggal lahir'],
-                            'errorOptions' => ['class' => 'invalid-feedback'],
-                        ])->widget(DatePicker::className(), [
-                            'name' => 'dp_2',
-                            'type' => DatePicker::TYPE_COMPONENT_PREPEND,
-                            'value' => '23-Feb-1982',
-                            'pluginOptions' => [
-                                'autoclose' => true,
-                                'format' => 'dd-M-yyyy'
-                            ]
-                        ]); ?>
+                        //     'options' => ['class' => 'col-6 form-group'],
+                        //     'inputOptions' => ['placeholder' => 'Tanggal lahir'],
+                        //     'errorOptions' => ['class' => 'invalid-feedback'],
+                        // ])->widget(DatePicker::className(), [
+                        //     'name' => 'dp_2',
+                        //     'type' => DatePicker::TYPE_COMPONENT_PREPEND,
+                        //     'value' => '23-Feb-1982',
+                        //     'pluginOptions' => [
+                        //         'autoclose' => true,
+                        //         'format' => 'dd-M-yyyy'
+                        //     ]
+                        // ]); ?>
 
-                        <?= $form->field($model, 'no_hp', [
+                        <?= $form->field($model, 'email', [
                             'template' => '
                             {input}
                             {error}
                             <div class="validate"></div>
                             ',
-                            'options' => ['class' => 'col-6 form-group'],
+                            'options' => ['class' => 'col-12 form-group'],
                             'errorOptions' => ['class' => 'invalid-feedback'],
                         ])->textInput([
                             'autofocus' => true,
-                            'placeholder' => 'No HP',
+                            'placeholder' => 'Email',
                             'class' => 'form-control',
                             'data' => ['rule' => 'minlen:4', 'msg' => 'Please enter at least 4 chars']
                         ]) ?>
@@ -154,7 +159,7 @@ $this->registerJS('
                             {error}
                             <div class="validate"></div>
                             ',
-                            'options' => ['class' => 'col form-group'],
+                            'options' => ['class' => 'col-12 form-group'],
                             'errorOptions' => ['class' => 'invalid-feedback'],
                         ])->textarea([
                             'rows' => 6,
@@ -218,7 +223,7 @@ $this->registerJS('
 
 
                     <div class="text-center">
-                        <?= Html::submitButton('Registrasi', ['class' => 'btn btn-primary', 'style' => 'background-color: #00cccc; width: 200px; height: 40px; border: none; border-radius: 20px; color: #ffffff ;']) ?>
+                        <?= Html::submitButton('Daftar', ['class' => 'btn btn-primary', 'style' => 'background-color: #00cccc; width: 200px; height: 40px; border: none; border-radius: 20px; color: #ffffff ;']) ?>
                     </div>
 
                     <?php ActiveForm::end(); ?>

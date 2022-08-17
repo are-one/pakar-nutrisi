@@ -44,12 +44,19 @@ $this->params['breadcrumbs'][] = $this->title;
 
                 <div class="col-lg-6">
 
-                    <!-- <div class="row">
-                </div> -->
 
                 </div>
 
                 <div class="col-lg-4">
+                    <?php if(Yii::$app->session->hasFlash('success')): ?>
+                    <div class="alert alert-success">
+                        <?= Yii::$app->session->getFlash('success') ?>
+                    </div>
+                    <?php elseif(Yii::$app->session->hasFlash('error')): ?>
+                    <div class="alert alert-danger">
+                        <?= Yii::$app->session->getFlash('error') ?>
+                    </div>
+                    <?php endif; ?>
 
                     <?php $form = ActiveForm::begin([
                         'id' => 'login-form',
@@ -66,12 +73,12 @@ $this->params['breadcrumbs'][] = $this->title;
                         // 'tag' => 'div',
                     ])) > 62) {
                     ?>
-                        <div class="alert alert-danger">
-                            <?= $form->errorSummary($model, [
+                    <div class="alert alert-danger">
+                        <?= $form->errorSummary($model, [
                                 'header' => '<b>Peringatan</b>',
                                 'class' => 'text-danger text-left'
                             ]) ?>
-                        </div>
+                    </div>
                     <?php
                     } ?>
                     <div class="form-row">

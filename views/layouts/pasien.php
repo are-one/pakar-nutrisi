@@ -30,6 +30,10 @@ AdminAsset::register($this);
     <!--Header-part-->
     <div id="header" style="background-color: #4A6B73;">
         <!-- <h2><a href="<?= Url::to(['site/index']) ?>">SPK</a></h2> -->
+        <h2 style="padding-top:1.3%; padding-left:1.7%">
+            <a href="<?= Url::to(['site/index']) ?>" style="color: #f4f4f4; margin-top:20px">Pasien</a>
+        </h2>
+
     </div>
     <!--close-Header-part-->
 
@@ -63,7 +67,7 @@ AdminAsset::register($this);
                 Yii::$app->pasien->isGuest ? (['label' => 'Login', 'url' => ['/site/login']]) : ('<li>'
 
                     . Html::a(
-                        '<i class="icon icon-key"></i> Logout (' . Yii::$app->pasien->identity->username . ')',
+                        '<i class="icon icon-key"></i><span>Logout (' . Yii::$app->pasien->identity->username . ')</span>',
                         ['/pasien/logout'],
                         [
                             'data' => ['method' => 'post']
